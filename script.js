@@ -433,7 +433,7 @@ $('#rtabs').onclick = e => {
 };
 
 /* nav */
-const TITLES = { home: 'Buckets', move: 'Move money', wish: 'Wishlist', act: 'Activity' };
+const TITLES = { home: 'PocketFlow', move: 'Move money', wish: 'Wishlist', act: 'Activity' };
 
 function go(s) {
   document.body.dataset.screen = s;
