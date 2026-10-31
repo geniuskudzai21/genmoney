@@ -217,37 +217,25 @@
           <h2>
             <svg class="ic"><use href="#i-heart" /></svg>Wishlist
           </h2>
+          <button class="sm pri" id="addW">
+            <svg class="ic" style="width:15px;height:15px"><use href="#i-plus" /></svg>Add item
+          </button>
         </div>
-        <div class="wl">
-          <form id="fW">
-            <div class="wf">
-              <div class="full">
-                <label>What</label>
-                <input id="wN" required maxlength="50" placeholder="e.g. Send mom 15">
-              </div>
-              <div>
-                <label>Type</label>
-                <select id="wK">
-                  <option value="buy">Buy</option>
-                  <option value="send">Send</option>
-                  <option value="do">Do</option>
-                </select>
-              </div>
-              <div>
-                <label>Amount</label>
-                <input id="wP" type="number" min="0" step="0.01" placeholder="0.00">
-              </div>
-              <div class="full">
-                <label>Pay from</label>
-                <select id="wB"></select>
-              </div>
-            </div>
-            <button class="pri" style="width:100%;margin-top:12px">
-              <svg class="ic"><use href="#i-plus" /></svg>Add to wishlist
-            </button>
-          </form>
-          <ul class="list" id="wish"></ul>
+        <div class="seg" id="wTabs">
+          <button data-f="all" class="on">
+            <svg class="ic" style="width:15px;height:15px"><use href="#i-list" /></svg>All
+          </button>
+          <button data-f="buy">
+            <svg class="ic" style="width:15px;height:15px"><use href="#i-cart" /></svg>Buy
+          </button>
+          <button data-f="send">
+            <svg class="ic" style="width:15px;height:15px"><use href="#i-send" /></svg>Send
+          </button>
+          <button data-f="do">
+            <svg class="ic" style="width:15px;height:15px"><use href="#i-flag" /></svg>Do
+          </button>
         </div>
+        <ul class="list" id="wish"></ul>
       </section>
     </main>
   </div>
@@ -326,6 +314,44 @@
         </button>
         <button class="pri">
           <svg class="ic" style="width:15px;height:15px"><use href="#i-check" /></svg>Save
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dW">
+    <form id="fW">
+      <h2>
+        <svg class="ic"><use href="#i-heart" /></svg>Add to wishlist
+      </h2>
+      <div class="wf">
+        <div class="full">
+          <label>What</label>
+          <input id="wN" required maxlength="50" placeholder="e.g. Send mom 15">
+        </div>
+        <div>
+          <label>Type</label>
+          <select id="wK">
+            <option value="buy">Buy</option>
+            <option value="send">Send</option>
+            <option value="do">Do</option>
+          </select>
+        </div>
+        <div>
+          <label>Amount</label>
+          <input id="wP" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="full">
+          <label>Pay from</label>
+          <select id="wB"></select>
+        </div>
+      </div>
+      <div class="acts">
+        <button type="button" data-close>
+          <svg class="ic" style="width:15px;height:15px"><use href="#i-x" /></svg>Cancel
+        </button>
+        <button class="pri">
+          <svg class="ic" style="width:15px;height:15px"><use href="#i-plus" /></svg>Add item
         </button>
       </div>
     </form>

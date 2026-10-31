@@ -17,7 +17,8 @@ let range = 30,
   prev = {},
   open = { inc: false, tx: false },
   shown = 0,
-  CH = null;
+  CH = null,
+  wishFilter = 'all';
 
 function scale(a, t) {
   if (!a.length) return [];
@@ -246,14 +247,22 @@ const LAB = {
   do: ['Done', 'Marked done', 'flag']
 };
 
+const WISH_EMPTY = {
+  all: 'Nothing on your wishlist yet.',
+  buy: 'No buy items yet.',
+  send: 'No send items yet.',
+  do: 'No to-do items yet.'
+};
+
 function renderWish() {
-  $('#wish').innerHTML = S.wish.length ? S.wish.map(w => {
+  const items = wishFilter === 'all' ? S.wish : S.wish.filter(w => w.kind === wishFilter);
+  $('#wish').innerHTML = items.length ? items.map(w => {
     const b = flows(w.bucket).bal,
       ok = b >= w.cents,
       p = w.cents ? Math.max(0, Math.min(100, b / w.cents * 100)) : 100,
       L = LAB[w.kind];
     return `<li><span class="av">${ic(L[2])}</span><div class="mid"><strong>${esc(w.name)}</strong><small>${w.cents ? money(w.cents) + ' from ' : 'From '}${esc(name(w.bucket))} · ${Math.round(p)}% funded</small><div class="bar ${ok ? 'ok' : ''}"><i data-w="${p}"></i></div></div>${ok ? `<button class="sm pri" data-act="${w.id}">${ic(w.kind === 'do' ? 'check' : L[2], 14)}${L[0]}</button>` : ''}<button class="ib" data-rm="${w.id}" aria-label="Remove">${ic('trash')}</button></li>`;
-  }).join('') : '<li><span class="empty" style="width:100%">Nothing on your wishlist yet.</span></li>';
+  }).join('') : `<li><span class="empty" style="width:100%">${WISH_EMPTY[wishFilter]}</span></li>`;
   document.body.offsetWidth;
   $$('#wish .bar i').forEach(i => i.style.width = i.dataset.w + '%');
 }
@@ -342,14 +351,31 @@ $('#wN').oninput = e => {
   if (/^(send|give|gift|pay)\b/i.test(e.target.value)) $('#wK').value = 'send';
 };
 
+function setWishFilter(f) {
+  wishFilter = f;
+  $$('#wTabs button').forEach(b => b.classList.toggle('on', b.dataset.f === f));
+}
+
+$('#addW').onclick = () => {
+  $('#fW').reset();
+  $('#dW').showModal();
+};
+
+$('#wTabs').onclick = e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  setWishFilter(b.dataset.f);
+  renderWish();
+};
+
 $('#fW').onsubmit = e => {
   e.preventDefault();
   const k = $('#wK').value, c = toC($('#wP').value);
   if (k !== 'do' && c <= 0) return toast('Enter an amount');
   S.wish.push({ id: uid(), name: $('#wN').value.trim(), cents: c, bucket: $('#wB').value, kind: k });
-  $('#wN').value = '';
-  $('#wP').value = '';
-  $('#wK').value = 'buy';
+  $('#fW').reset();
+  $('#dW').close();
+  setWishFilter('all');
   render();
 };
 

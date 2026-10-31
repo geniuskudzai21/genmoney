@@ -232,10 +232,8 @@ body {
   margin-top: 16px;
 }
 
-.wl {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 24px;
+#wTabs {
+  margin-bottom: 10px;
 }
 
 button {
@@ -857,8 +855,7 @@ dialog h2 .ic {
   }
 
   .grid2,
-  .grid2b,
-  .wl {
+  .grid2b {
     display: block;
   }
 
@@ -935,10 +932,6 @@ dialog h2 .ic {
   .edit {
     top: 4px;
     right: 2px;
-  }
-
-  .wl form {
-    margin-bottom: 12px;
   }
 
   .stat {
