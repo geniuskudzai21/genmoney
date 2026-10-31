@@ -289,8 +289,8 @@ function renderAfford() {
   const tot = S.buckets.reduce((a, b) => a + flows(b.id).bal, 0);
   $('#afford').innerHTML = S.buckets.map(b => {
     const bal = flows(b.id).bal;
-    return `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><span>${esc(b.name)}</span><span class="${bal >= p ? 'pos' : 'neg'}">${bal >= p ? 'Covers it' : 'Short ' + money(p - bal)}</span></div>`;
-  }).join('') + `<div class="sub" style="margin-top:10px">${tot >= p ? 'Your total balance covers it.' : 'Your total is short by ' + money(p - tot) + '.'}</div>`;
+    return `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><span>${esc(b.name)}</span><span class="${bal >= p ? 'pos' : 'neg'}" style="display:inline-flex;align-items:center;gap:4px">${ic(bal >= p ? 'check' : 'x', 13)}${bal >= p ? 'Covers it' : 'Short ' + money(p - bal)}</span></div>`;
+  }).join('') + `<div class="sub" style="margin-top:10px;display:flex;align-items:center;gap:5px">${ic(tot >= p ? 'check' : 'x', 13)}${tot >= p ? 'Your total balance covers it.' : 'Your total is short by ' + money(p - tot) + '.'}</div>`;
 }
 
 function render() {

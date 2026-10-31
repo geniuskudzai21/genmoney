@@ -720,6 +720,13 @@ dialog[open] {
 dialog h2 {
   margin: 0;
   font-size: 17px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+dialog h2 .ic {
+  color: var(--muted);
 }
 
 .acts {
@@ -837,6 +844,18 @@ dialog h2 {
 }
 
 @media (max-width: 860px) {
+  * {
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  #addInc {
+    display: none;
+  }
+
   .grid2,
   .grid2b,
   .wl {
