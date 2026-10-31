@@ -575,3 +575,9 @@ $('#dGo').onclick = () => {
 $$('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
 
 render();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
