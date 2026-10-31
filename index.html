@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Buckets – Money Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-screen="home">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-home" viewBox="0 0 24 24">
+        <path d="M3 11l9-8 9 8" />
+        <path d="M5 10v10h14V10" />
+      </symbol>
+      <symbol id="i-swap" viewBox="0 0 24 24">
+        <path d="M7 7h13l-3-3M17 17H4l3 3" />
+      </symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14" />
+      </symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24">
+        <path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z" />
+      </symbol>
+      <symbol id="i-list" viewBox="0 0 24 24">
+        <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />
+      </symbol>
+      <symbol id="i-chev" viewBox="0 0 24 24">
+        <path d="M6 9l6 6 6-6" />
+      </symbol>
+      <symbol id="i-edit" viewBox="0 0 24 24">
+        <path d="M4 20h4L19 9l-4-4L4 16v4z" />
+      </symbol>
+      <symbol id="i-sl" viewBox="0 0 24 24">
+        <path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M13 4v4M7 10v4M15 16v4" />
+      </symbol>
+      <symbol id="i-bucket" viewBox="0 0 24 24">
+        <path d="M5 7h14l-1.6 12a2 2 0 01-2 1.7H8.6a2 2 0 01-2-1.7L5 7z" />
+        <path d="M5 7c0-1.7 3-3 7-3s7 1.3 7 3" />
+      </symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24">
+        <path d="M4 19V5M4 19h16M8 15l4-5 3 3 5-6" />
+      </symbol>
+      <symbol id="i-down" viewBox="0 0 24 24">
+        <path d="M12 5v14M6 13l6 6 6-6" />
+      </symbol>
+      <symbol id="i-up" viewBox="0 0 24 24">
+        <path d="M12 19V5M6 11l6-6 6 6" />
+      </symbol>
+      <symbol id="i-cart" viewBox="0 0 24 24">
+        <circle cx="9" cy="20" r="1.3" />
+        <circle cx="18" cy="20" r="1.3" />
+        <path d="M3 4h2.5l2.2 11h10.6L20 8H6.5" />
+      </symbol>
+      <symbol id="i-send" viewBox="0 0 24 24">
+        <path d="M21 3L10 14M21 3l-7 18-4-7-7-4 18-7z" />
+      </symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24">
+        <path d="M5 21V4M5 4h11l-2 4 2 4H5" />
+      </symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24">
+        <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+      </symbol>
+      <symbol id="i-check" viewBox="0 0 24 24">
+        <path d="M5 12l5 5 9-10" />
+      </symbol>
+      <symbol id="i-wallet" viewBox="0 0 24 24">
+        <path d="M3 7a2 2 0 012-2h13v4M3 7v11a2 2 0 002 2h15V9H5a2 2 0 01-2-2z" />
+        <path d="M16 14.5h.01" />
+      </symbol>
+      <symbol id="i-calc" viewBox="0 0 24 24">
+        <rect x="5" y="3" width="14" height="18" rx="2" />
+        <path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01" />
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="wrap">
+    <div class="top">
+      <svg class="ic"><use href="#i-wallet" /></svg>
+      <h1 id="ttl">Buckets</h1>
+    </div>
+
+    <header class="hero">
+      <div class="row">
+        <div>
+          <div class="lbl">Total balance</div>
+          <div class="total" id="total">$0.00</div>
+        </div>
+        <button id="addInc" class="w">
+          <svg class="ic"><use href="#i-plus" /></svg>Add income
+        </button>
+      </div>
+      <div class="stack" id="stack"></div>
+      <div class="legend" id="legend"></div>
+    </header>
+
+    <main>
+      <section class="card" id="bcard" data-s="home">
+        <div class="head">
+          <h2>
+            <svg class="ic"><use href="#i-bucket" /></svg>Buckets
+          </h2>
+          <div class="row">
+            <button class="sm" id="rebal">
+              <svg class="ic" style="width:15px;height:15px"><use href="#i-sl" /></svg>Rebalance
+            </button>
+            <button class="sm pri" id="addB">
+              <svg class="ic" style="width:15px;height:15px"><use href="#i-plus" /></svg>Bucket
+            </button>
+          </div>
+        </div>
+        <div id="buckets"></div>
+      </section>
+
+      <div class="grid2">
+        <section class="card" data-s="home">
+          <div class="head">
+            <h2>
+              <svg class="ic"><use href="#i-chart" /></svg>Income, last <span id="rng">30</span> days
+            </h2>
+            <div class="rt" id="rtabs">
+              <button data-r="7">7d</button>
+              <button data-r="30" class="on">30d</button>
+              <button data-r="90">90d</button>
+            </div>
+          </div>
+          <div class="stats" id="stats"></div>
+          <div class="cw">
+            <svg id="line" width="100%" height="210" role="img" aria-label="Daily income line chart"></svg>
+            <div id="tip"></div>
+          </div>
+        </section>
+
+        <section class="card" data-s="move">
+          <div class="head">
+            <h2>
+              <svg class="ic"><use href="#i-swap" /></svg>Move money
+            </h2>
+          </div>
+          <div class="seg" id="atabs">
+            <button data-p="fE" class="on">
+              <svg class="ic" style="width:15px;height:15px"><use href="#i-up" /></svg>Expense
+            </button>
+            <button data-p="fT">
+              <svg class="ic" style="width:15px;height:15px"><use href="#i-swap" /></svg>Transfer
+            </button>
+            <button data-p="pA">
+              <svg class="ic" style="width:15px;height:15px"><use href="#i-calc" /></svg>Afford?
+            </button>
+          </div>
+          <form id="fE" class="pane on">
+            <label>Amount</label>
+            <input id="xA" type="number" min="0" step="0.01" required>
+            <label>Bucket</label>
+            <select id="xB"></select>
+            <label>Note</label>
+            <input id="xN" maxlength="60" placeholder="Optional">
+            <button class="pri">Log expense</button>
+          </form>
+          <form id="fT" class="pane">
+            <label>From</label>
+            <select id="tF"></select>
+            <label>To</label>
+            <select id="tT"></select>
+            <label>Amount</label>
+            <input id="tA" type="number" min="0" step="0.01" required>
+            <button class="pri">Transfer</button>
+          </form>
+          <div id="pA" class="pane">
+            <label>Price of the thing</label>
+            <input id="price" type="number" min="0" step="0.01" placeholder="0.00">
+            <div class="res" id="afford"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="grid2b">
+        <section class="card" data-s="act">
+          <div class="head">
+            <h2>
+              <svg class="ic"><use href="#i-down" /></svg>Income
+            </h2>
+          </div>
+          <div id="incw">
+            <ul class="list" id="inc"></ul>
+          </div>
+          <button class="more" id="moreI" hidden>
+            <svg class="ic"><use href="#i-chev" /></svg><span></span>
+          </button>
+        </section>
+
+        <section class="card" data-s="act">
+          <div class="head">
+            <h2>
+              <svg class="ic"><use href="#i-list" /></svg>Spending and transfers
+            </h2>
+          </div>
+          <div id="txw">
+            <ul class="list" id="txs"></ul>
+          </div>
+          <button class="more" id="moreT" hidden>
+            <svg class="ic"><use href="#i-chev" /></svg><span></span>
+          </button>
+        </section>
+      </div>
+
+      <section class="card" id="wcard" data-s="wish">
+        <div class="head">
+          <h2>
+            <svg class="ic"><use href="#i-heart" /></svg>Wishlist
+          </h2>
+        </div>
+        <div class="wl">
+          <form id="fW">
+            <div class="wf">
+              <div class="full">
+                <label>What</label>
+                <input id="wN" required maxlength="50" placeholder="e.g. Send mom 15">
+              </div>
+              <div>
+                <label>Type</label>
+                <select id="wK">
+                  <option value="buy">Buy</option>
+                  <option value="send">Send</option>
+                  <option value="do">Do</option>
+                </select>
+              </div>
+              <div>
+                <label>Amount</label>
+                <input id="wP" type="number" min="0" step="0.01" placeholder="0.00">
+              </div>
+              <div class="full">
+                <label>Pay from</label>
+                <select id="wB"></select>
+              </div>
+            </div>
+            <button class="pri" style="width:100%;margin-top:12px">
+              <svg class="ic"><use href="#i-plus" /></svg>Add to wishlist
+            </button>
+          </form>
+          <ul class="list" id="wish"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="tab" aria-label="Main">
+    <button data-go="home" class="on">
+      <svg class="ic"><use href="#i-home" /></svg>Home
+    </button>
+    <button data-go="move">
+      <svg class="ic"><use href="#i-swap" /></svg>Move
+    </button>
+    <button class="fab" id="fab" aria-label="Add income">
+      <svg class="ic"><use href="#i-plus" /></svg>
+    </button>
+    <button data-go="wish">
+      <svg class="ic"><use href="#i-heart" /></svg>Wishlist
+    </button>
+    <button data-go="act">
+      <svg class="ic"><use href="#i-list" /></svg>Activity
+    </button>
+  </nav>
+
+  <dialog id="dI">
+    <form id="fI">
+      <h2>Add income</h2>
+      <label>Amount</label>
+      <input id="iA" type="number" min="0" step="0.01" required>
+      <label>Source or project</label>
+      <input id="iS" required maxlength="60">
+      <label>Date</label>
+      <input id="iD" type="date" required>
+      <p class="err" id="iErr"></p>
+      <div class="acts">
+        <button type="button" data-close>Cancel</button>
+        <button class="pri">Split into buckets</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dB">
+    <form id="fB">
+      <h2 id="bT"></h2>
+      <div id="nameRow">
+        <label>Bucket name</label>
+        <input id="bN" maxlength="30">
+      </div>
+      <label>Share of every income (others adjust to keep 100%)</label>
+      <div id="rows"></div>
+      <div class="row tot">
+        <span>Total</span><strong id="bTot">100%</strong>
+      </div>
+      <p class="err" id="bErr"></p>
+      <div id="delBox" hidden>
+        <label>Move this bucket’s remaining balance to</label>
+        <select id="dTo"></select>
+        <div class="acts">
+          <button type="button" class="danger sm" id="dGo">
+            <svg class="ic" style="width:15px;height:15px"><use href="#i-trash" /></svg>Confirm delete
+          </button>
+        </div>
+      </div>
+      <div class="acts">
+        <button type="button" id="bDel" class="sm" style="margin-right:auto">
+          <svg class="ic" style="width:15px;height:15px"><use href="#i-trash" /></svg>Delete
+        </button>
+        <button type="button" data-close>Cancel</button>
+        <button class="pri">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
