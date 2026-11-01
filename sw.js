@@ -1,4 +1,4 @@
-const CACHE = 'pocketflow-v1';
+const CACHE = 'pocketflow-v6';
 const ASSETS = [
   './',
   './index.html',

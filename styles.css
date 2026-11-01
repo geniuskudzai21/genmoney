@@ -505,6 +505,23 @@ button:focus-visible {
   font-size: 12px;
 }
 
+.list li.wishTotal {
+  justify-content: space-between;
+  margin-top: 4px;
+  padding-top: 13px;
+  border-top: 2px solid color-mix(in srgb, var(--line) 85%, transparent);
+}
+
+.list li.wishTotal span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.list li.wishTotal strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+
 .av {
   width: 34px;
   height: 34px;
@@ -698,6 +715,10 @@ dialog {
   color: var(--text);
   padding: 20px;
   width: min(420px, 94vw);
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 dialog::backdrop {
@@ -744,30 +765,86 @@ dialog h2 .ic {
 
 .rrow {
   display: grid;
-  grid-template-columns: 10px 1fr 2fr 40px;
+  grid-template-columns: 10px 1fr auto;
+  grid-template-areas:
+    "dot name stepper"
+    "range range range";
   align-items: center;
-  gap: 10px;
-  padding: 6px 0;
+  gap: 4px 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.rrow:first-child {
+  border-top: 0;
 }
 
 .rrow .dot {
+  grid-area: dot;
   width: 10px;
   height: 10px;
   border-radius: 3px;
+}
+
+.rrow .rn {
+  grid-area: name;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .rrow.f .rn {
   font-weight: 600;
 }
 
+.rrow .stepper {
+  grid-area: stepper;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rrow .stepper button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  touch-action: manipulation;
+}
+
+.rrow .stepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .rrow output {
-  text-align: right;
+  min-width: 42px;
+  text-align: center;
   font-weight: 600;
   font-size: 13px;
 }
 
-.rrow input {
+.rrow input[type=range] {
+  grid-area: range;
   width: 100%;
+  height: 28px;
+  margin: 0;
+  touch-action: pan-y;
+}
+
+.rrow input[type=range]:disabled {
+  opacity: 0.45;
+}
+
+@media (max-width: 860px) {
+  .rrow .stepper button {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .tot {
@@ -1001,8 +1078,693 @@ dialog h2 .ic {
   }
 }
 
+/* ---------- Expected income ---------- */
+
+#ecard {
+  margin-top: 16px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 11%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
+  color: var(--accent);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.expForm {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.35fr auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--soft) 58%, transparent);
+  margin-bottom: 6px;
+}
+
+.expForm label {
+  margin: 0 0 4px;
+}
+
+.expForm button {
+  height: 38px;
+  white-space: nowrap;
+}
+
+#expList .mid small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.av.expected {
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+  color: var(--accent);
+}
+
+.expRecv {
+  flex: none;
+  white-space: nowrap;
+}
+
+.expSplit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.expSplit[hidden] {
+  display: none;
+}
+
+.expSplit .lbl2 {
+  width: 100%;
+  font-size: 11.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--soft) 75%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chip i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: block;
+  flex: none;
+}
+
+.chip b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  #ecard {
+    margin-top: 14px;
+  }
+
+  .expForm {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .expForm .wide,
+  .expForm button {
+    grid-column: 1 / -1;
+  }
+
+  #expList .mid {
+    flex-basis: 100px;
+  }
+
+  #expList .expRecv {
+    padding: 5px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  #expList .expRecv span {
+    display: none;
+  }
+
+  #expList .expRecv {
+    padding: 5px 7px;
+  }
+}
+
+/* ---------- Futuristic UI layer ---------- */
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -18%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 32% at 22% 18%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+    radial-gradient(34% 30% at 78% 26%, color-mix(in srgb, #4f8f8f 20%, transparent), transparent 72%),
+    radial-gradient(40% 34% at 58% 86%, color-mix(in srgb, #b7893a 14%, transparent), transparent 70%);
+  filter: blur(34px) saturate(1.15);
+  opacity: 0.5;
+  animation: ambientDrift 32s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes ambientDrift {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(2%, 2%, 0) scale(1.06);
+  }
+
+  100% {
+    transform: translate3d(-1%, 3%, 0) scale(1.02);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body::before {
+    opacity: 0.42;
+  }
+
+  :root:not([data-theme="light"]) body::after {
+    opacity: 0.06;
+  }
+}
+
+:root[data-theme="dark"] body::before {
+  opacity: 0.42;
+}
+
+:root[data-theme="dark"] body::after {
+  opacity: 0.06;
+}
+
+.top .ic {
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  border-radius: 11px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 6px 16px -12px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.top h1 {
+  letter-spacing: -0.015em;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(130% 150% at 0% 0%, color-mix(in srgb, var(--accent) 58%, transparent), transparent 58%),
+    radial-gradient(110% 130% at 100% 10%, color-mix(in srgb, #2f7d6b 70%, transparent), transparent 62%),
+    linear-gradient(145deg, var(--hero), #0f171c 62%, #1b2a31);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 30px 60px -38px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(320px 220px at var(--hx, 50%) var(--hy, 0%), rgba(255, 255, 255, 0.16), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.hero:hover::before {
+  opacity: 1;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: -20%;
+  bottom: -55%;
+  width: 70%;
+  height: 110%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, #5aa89d 45%, transparent), transparent 65%);
+  filter: blur(34px);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: heroFloat 14s ease-in-out infinite alternate;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes heroFloat {
+  from {
+    transform: translate3d(-4%, 2%, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(10%, -4%, 0) scale(1.15);
+  }
+}
+
+.total {
+  color: #fff;
+  background: linear-gradient(100deg, #fff 15%, #c8ece5 45%, #fff 70%, #c8ece5 95%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: totalShimmer 9s linear infinite;
+}
+
+@keyframes totalShimmer {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+.stack {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.stack i {
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 14px rgba(255, 255, 255, 0.08);
+}
+
+.hero .w {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.6);
+  transition: transform 0.18s ease, box-shadow 0.25s ease, background 0.18s ease;
+}
+
+.hero .w:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px -16px rgba(0, 0, 0, 0.65);
+}
+
+.card {
+  position: relative;
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 20px 45px -34px color-mix(in srgb, var(--hero) 55%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+  animation: cardIn 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 45%, transparent), transparent);
+  opacity: 0.55;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.995);
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.grid2 .card {
+  animation-delay: 0.06s;
+}
+
+.grid2b .card {
+  animation-delay: 0.1s;
+}
+
+#wcard {
+  animation-delay: 0.14s;
+}
+
+.bucket {
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  border-color: color-mix(in srgb, var(--line) 70%, transparent);
+  box-shadow:
+    0 14px 30px -26px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.25s ease, box-shadow 0.35s ease;
+}
+
+.bucket:hover {
+  transform: translateY(-4px);
+  border-color: var(--c);
+  box-shadow:
+    0 22px 44px -26px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.bucket:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+.bk {
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.12));
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.bucket:hover .bk {
+  transform: translateY(-2px) scale(1.03);
+}
+
+button {
+  touch-action: manipulation;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease, box-shadow 0.25s ease;
+}
+
+button.pri {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 88%, #fff 12%), var(--accent));
+  box-shadow:
+    0 10px 24px -14px color-mix(in srgb, var(--accent) 80%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+button.pri:hover {
+  box-shadow:
+    0 14px 30px -14px color-mix(in srgb, var(--accent) 85%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+button.pri:active {
+  transform: scale(0.97);
+}
+
+button.pri::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, 0.22) 50%, transparent 75%);
+  transform: translateX(-130%);
+  transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+button.pri:hover::after {
+  transform: translateX(130%);
+}
+
+.ib {
+  transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease;
+}
+
+.ib:hover {
+  transform: translateY(-1px);
+}
+
+.ib:active {
+  transform: scale(0.92);
+}
+
+input:not([type=range]),
+select {
+  background: color-mix(in srgb, var(--card) 78%, transparent);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+input:not([type=range]):focus,
+select:focus {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.seg,
+.rt {
+  border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
+  background: color-mix(in srgb, var(--soft) 75%, transparent);
+}
+
+.seg button,
+.rt button {
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.seg button:active,
+.rt button:active {
+  transform: scale(0.96);
+}
+
+.seg button.on,
+.rt button.on {
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  box-shadow:
+    0 2px 8px -3px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.bar {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.bar i {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--accent), #4f8f8f);
+}
+
+.bar.ok i {
+  background: linear-gradient(90deg, var(--pos), #4fb386);
+}
+
+.bar i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: translateX(-100%);
+  animation: barShine 2.8s ease-in-out infinite;
+}
+
+@keyframes barShine {
+  0%,
+  40% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.list li {
+  transition: background 0.2s ease;
+}
+
+.av {
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.25s ease;
+}
+
+.list li:hover .av {
+  transform: scale(1.06) rotate(-2deg);
+}
+
+.ln {
+  filter: drop-shadow(0 6px 12px color-mix(in srgb, var(--accent) 30%, transparent));
+}
+
+#tip {
+  background: color-mix(in srgb, var(--text) 92%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.stat b {
+  letter-spacing: -0.01em;
+}
+
+.tab {
+  background: color-mix(in srgb, var(--card) 82%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
+  box-shadow: 0 -14px 34px -24px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.4);
+}
+
+.tab button {
+  border-radius: 12px;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+.tab button:active {
+  transform: scale(0.94);
+}
+
+.tab button.on {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 11%, transparent);
+}
+
+.tab .fab {
+  position: relative;
+  background: linear-gradient(145deg, #3a8b7f, var(--accent));
+  box-shadow:
+    0 12px 26px -10px color-mix(in srgb, var(--accent) 85%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.tab .fab::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  pointer-events: none;
+  animation: fabPulse 3.2s ease-out infinite;
+}
+
+@keyframes fabPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.65;
+  }
+
+  70%,
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+dialog {
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  box-shadow:
+    0 40px 90px -40px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.25);
+  backdrop-filter: blur(24px) saturate(1.25);
+}
+
+dialog::backdrop {
+  background: color-mix(in srgb, var(--hero) 42%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+dialog[open] {
+  animation: dialogIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes dialogIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+#toast {
+  background: color-mix(in srgb, var(--text) 94%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 34px -20px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.scroll {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 860px) {
+  .tab {
+    left: 12px;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: 6px;
+    border: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+    border-radius: 20px;
+    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.55);
+  }
+
+  .wrap {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #toast {
+    bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+  }
+
+  dialog::before {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 4px;
+    margin: -4px auto 14px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--muted) 45%, transparent);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation: none !important;
     transition: none !important;
   }

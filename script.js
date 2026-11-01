@@ -37,15 +37,19 @@ function scale(a, t) {
   return fl;
 }
 
-function incomeTx(bs, total, desc, date) {
+function splitIncome(bs, total) {
   const split = {};
   let used = 0;
   bs.forEach(b => {
     split[b.id] = Math.floor(total * b.pct / 100);
     used += split[b.id];
   });
-  split[bs[0].id] += total - used;
-  return { id: uid(), kind: 'income', date, desc, cents: total, split };
+  if (bs.length) split[bs[0].id] += total - used;
+  return split;
+}
+
+function incomeTx(bs, total, desc, date) {
+  return { id: uid(), kind: 'income', date, desc, cents: total, split: splitIncome(bs, total) };
 }
 
 function seed() {
@@ -58,6 +62,7 @@ function seed() {
     })),
     tx: [],
     wish: [],
+    expected: [],
     archived: []
   };
 }
@@ -70,6 +75,12 @@ if (!S || !S.buckets) S = seed();
 S.archived = S.archived || [];
 S.tx = S.tx || [];
 S.wish = (S.wish || []).map(w => ({ ...w, kind: w.kind || 'buy' }));
+S.expected = (S.expected || []).map(e => ({
+  id: e.id || uid(),
+  cents: +e.cents || 0,
+  desc: e.desc || 'Expected income',
+  date: e.date || dkey(new Date())
+})).filter(e => e.cents > 0);
 S.buckets.forEach((b, i) => {
   if (!COLORS.includes(b.color)) b.color = COLORS[i % COLORS.length];
 });
@@ -98,7 +109,7 @@ function flows(id) {
   return { inn, out, bal: inn - out };
 }
 
-const level = f => f.inn > 0 ? Math.max(0, Math.min(1, f.bal / f.inn)) : 0;
+const level = (f, total) => total > 0 ? Math.max(0, Math.min(1, f.bal / total)) : 0;
 
 let tt;
 function toast(m) {
@@ -131,6 +142,7 @@ function setTotal(v) {
 }
 
 function renderBuckets() {
+  const totalBal = S.buckets.reduce((a, b) => a + flows(b.id).bal, 0);
   $('#buckets').innerHTML = S.buckets.map(b => {
     const f = flows(b.id);
     return `<article class="bucket" style="--c:${b.color}" data-id="${b.id}"><button class="edit" data-edit="${b.id}" aria-label="Edit ${esc(b.name)}">${ic('edit', 15)}</button>${bucketSvg(b, prev[b.id] ?? 0)}<div class="bt"><h3>${esc(b.name)}</h3><p class="amt">${money(f.bal)}</p><p class="sub">${b.pct}% of income</p></div></article>`;
@@ -141,13 +153,13 @@ function renderBuckets() {
   $('#legend').innerHTML = bs.map(x => `<span><i style="background:${x.b.color}"></i>${esc(x.b.name)} ${Math.round(x.v / tot * 100)}%</span>`).join('');
   document.body.offsetWidth;
   S.buckets.forEach(b => {
-    const lv = level(flows(b.id)),
+    const lv = level(flows(b.id), totalBal),
       g = document.querySelector(`[data-id="${b.id}"] .liq`);
     if (g) g.style.transform = `translateY(${130 - lv * 92}px)`;
     prev[b.id] = lv;
   });
   $$('#stack i').forEach(i => i.style.width = i.dataset.w + '%');
-  setTotal(S.buckets.reduce((a, b) => a + flows(b.id).bal, 0));
+  setTotal(totalBal);
 }
 
 function fillSelects() {
@@ -255,14 +267,16 @@ const WISH_EMPTY = {
 };
 
 function renderWish() {
-  const items = wishFilter === 'all' ? S.wish : S.wish.filter(w => w.kind === wishFilter);
-  $('#wish').innerHTML = items.length ? items.map(w => {
+  const items = wishFilter === 'all' ? S.wish : S.wish.filter(w => w.kind === wishFilter),
+    total = items.reduce((a, w) => a + (w.cents || 0), 0);
+  const rows = items.length ? items.map(w => {
     const b = flows(w.bucket).bal,
       ok = b >= w.cents,
       p = w.cents ? Math.max(0, Math.min(100, b / w.cents * 100)) : 100,
       L = LAB[w.kind];
     return `<li><span class="av">${ic(L[2])}</span><div class="mid"><strong>${esc(w.name)}</strong><small>${w.cents ? money(w.cents) + ' from ' : 'From '}${esc(name(w.bucket))} · ${Math.round(p)}% funded</small><div class="bar ${ok ? 'ok' : ''}"><i data-w="${p}"></i></div></div>${ok ? `<button class="sm pri" data-act="${w.id}">${ic(w.kind === 'do' ? 'check' : L[2], 14)}${L[0]}</button>` : ''}<button class="ib" data-rm="${w.id}" aria-label="Remove">${ic('trash')}</button></li>`;
   }).join('') : `<li><span class="empty" style="width:100%">${WISH_EMPTY[wishFilter]}</span></li>`;
+  $('#wish').innerHTML = rows + `<li class="wishTotal"><span>Total${items.length ? ` · ${items.length} item${items.length === 1 ? '' : 's'}` : ''}</span><strong>${money(total)}</strong></li>`;
   document.body.offsetWidth;
   $$('#wish .bar i').forEach(i => i.style.width = i.dataset.w + '%');
 }
@@ -302,11 +316,26 @@ function renderAfford() {
   }).join('') + `<div class="sub" style="margin-top:10px;display:flex;align-items:center;gap:5px">${ic(tot >= p ? 'check' : 'x', 13)}${tot >= p ? 'Your total balance covers it.' : 'Your total is short by ' + money(p - tot) + '.'}</div>`;
 }
 
+function renderExpected() {
+  const items = [...S.expected].sort((a, b) => a.date.localeCompare(b.date) || a.desc.localeCompare(b.desc)),
+    total = items.reduce((a, e) => a + e.cents, 0);
+  $('#expTotal').textContent = money(total);
+  $('#expList').innerHTML = items.length ? items.map(e => `<li><span class="av expected">${ic('clock')}</span><div class="mid"><strong>${esc(e.desc)}</strong><small>Expected ${e.date} · ${S.buckets.length} ${S.buckets.length === 1 ? 'bucket' : 'buckets'}</small></div><span class="amt2">${money(e.cents)}</span><button class="sm expRecv" data-rec="${e.id}" aria-label="Mark ${esc(e.desc)} as received">${ic('check', 14)}<span>Receive</span></button><button class="ib" data-rm-exp="${e.id}" aria-label="Remove expected income">${ic('trash')}</button></li>`).join('') : `<li><span class="empty" style="width:100%">Nothing expected yet. Add income you are waiting for.</span></li>`;
+  const split = {};
+  items.forEach(e => {
+    const s = splitIncome(S.buckets, e.cents);
+    S.buckets.forEach(b => split[b.id] = (split[b.id] || 0) + (s[b.id] || 0));
+  });
+  $('#expSplit').hidden = !items.length || !S.buckets.length;
+  $('#expSplit').innerHTML = items.length ? `<span class="lbl2">Projected split if it all arrives</span>${S.buckets.map(b => `<span class="chip"><i style="background:${b.color}"></i>${esc(b.name)} <b>${money(split[b.id] || 0)}</b></span>`).join('')}` : '';
+}
+
 function render() {
   renderBuckets();
   fillSelects();
   renderChart();
   renderWish();
+  renderExpected();
   renderLists();
   renderAfford();
   save();
@@ -392,6 +421,41 @@ $('#wish').onclick = e => {
   render();
 };
 
+$('#expD').value = dkey(new Date());
+$('#fExp').onsubmit = e => {
+  e.preventDefault();
+  const c = toC($('#expA').value),
+    desc = $('#expS').value.trim(),
+    date = $('#expD').value;
+  if (c <= 0) return toast('Enter an amount');
+  if (!desc) return toast('Add a source');
+  if (!date) return toast('Pick an expected date');
+  S.expected.push({ id: uid(), cents: c, desc, date });
+  $('#fExp').reset();
+  $('#expD').value = dkey(new Date());
+  renderExpected();
+  save();
+  toast('Expected income added');
+};
+$('#expList').onclick = e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  if (b.dataset.rmExp) {
+    S.expected = S.expected.filter(x => x.id !== b.dataset.rmExp);
+    renderExpected();
+    save();
+    return toast('Expected income removed');
+  }
+  if (b.dataset.rec) {
+    const x = S.expected.find(v => v.id === b.dataset.rec);
+    if (!x) return;
+    S.tx.push(incomeTx(S.buckets, x.cents, x.desc, dkey(new Date())));
+    S.expected = S.expected.filter(v => v.id !== x.id);
+    render();
+    toast('Income received and split');
+  }
+};
+
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-del]');
   if (!b) return;
@@ -474,22 +538,33 @@ let draft = [],
   editingId = null;
 
 function setPct(i, v) {
+  v = Math.max(0, Math.min(100, Math.round(v)));
   draft[i].pct = v;
-  const others = draft.filter((_, k) => k !== i),
-    sc = scale(others.map(o => o.pct), 100 - v);
+  const others = draft.filter((_, k) => k !== i);
+  if (!others.length) {
+    draft[i].pct = 100;
+    return;
+  }
+  const sc = scale(others.map(o => o.pct), 100 - v);
   others.forEach((o, k) => o.pct = sc[k]);
 }
 
 function syncRows() {
-  $$('#rows input').forEach((el, k) => {
-    el.value = draft[k].pct;
-    el.nextElementSibling.textContent = draft[k].pct + '%';
+  $$('#rows .rrow').forEach((row, k) => {
+    const range = row.querySelector('input[type=range]'),
+      out = row.querySelector('output'),
+      minus = row.querySelector('[data-step="-1"]'),
+      plus = row.querySelector('[data-step="1"]');
+    if (range) range.value = draft[k].pct;
+    if (out) out.textContent = draft[k].pct + '%';
+    if (minus) minus.disabled = draft.length === 1 || draft[k].pct <= 0;
+    if (plus) plus.disabled = draft.length === 1 || draft[k].pct >= 100;
   });
   $('#bTot').textContent = draft.reduce((a, d) => a + d.pct, 0) + '%';
 }
 
 function drawRows() {
-  $('#rows').innerHTML = draft.map((d, i) => `<div class="rrow ${i === focus ? 'f' : ''}"><i class="dot" style="background:${d.color}"></i><span class="rn">${esc(d.name)}</span><input type="range" min="0" max="100" value="${d.pct}" data-i="${i}" style="accent-color:${d.color}" ${draft.length === 1 ? 'disabled' : ''}><output>${d.pct}%</output></div>`).join('');
+  $('#rows').innerHTML = draft.map((d, i) => `<div class="rrow ${i === focus ? 'f' : ''}"><i class="dot" style="background:${d.color}"></i><span class="rn">${esc(d.name)}</span><div class="stepper"><button type="button" data-step="-1" data-i="${i}" aria-label="Decrease ${esc(d.name)}">&minus;</button><output>${d.pct}%</output><button type="button" data-step="1" data-i="${i}" aria-label="Increase ${esc(d.name)}">+</button></div><input type="range" min="0" max="100" value="${d.pct}" data-i="${i}" style="accent-color:${d.color}" ${draft.length === 1 ? 'disabled' : ''}></div>`).join('');
   syncRows();
 }
 
@@ -528,6 +603,15 @@ $('#rows').oninput = e => {
   const i = +e.target.dataset.i;
   if (isNaN(i)) return;
   setPct(i, Math.round(+e.target.value));
+  syncRows();
+};
+$('#rows').onclick = e => {
+  const b = e.target.closest('[data-step]');
+  if (!b || b.disabled) return;
+  const i = +b.dataset.i;
+  if (isNaN(i)) return;
+  const step = e.shiftKey ? 1 : 5;
+  setPct(i, draft[i].pct + (+b.dataset.step * step));
   syncRows();
 };
 $('#bN').oninput = e => {
@@ -575,6 +659,29 @@ $('#dGo').onclick = () => {
 $$('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
 
 render();
+
+/* futuristic interaction layer */
+const calmMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const heroEl = document.querySelector('.hero');
+if (heroEl && !calmMotion) {
+  heroEl.addEventListener('pointermove', e => {
+    const r = heroEl.getBoundingClientRect();
+    heroEl.style.setProperty('--hx', (e.clientX - r.left) + 'px');
+    heroEl.style.setProperty('--hy', (e.clientY - r.top) + 'px');
+  });
+  heroEl.addEventListener('pointerleave', () => {
+    heroEl.style.setProperty('--hx', '50%');
+    heroEl.style.setProperty('--hy', '0%');
+  });
+}
+
+const coarse = matchMedia('(pointer: coarse)').matches;
+function haptic(ms = 8) {
+  if (coarse && 'vibrate' in navigator) navigator.vibrate(ms);
+}
+document.querySelectorAll('.tab [data-go], #fab').forEach(b => {
+  b.addEventListener('click', () => haptic());
+});
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
